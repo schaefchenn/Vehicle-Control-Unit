@@ -12,7 +12,7 @@ For any questions or inquiries, please contact https://github.com/schaefchenn or
 #include <CANBUS.h>
 #include <XBOX.h>
 #include <MANEUVER.h>
-#include <FrySky.h>
+#include <FRYSKY.h>
 
 // Core definitions (assuming you have dual-core ESP32)
 static const BaseType_t pro_cpu = 0; // protocol core
