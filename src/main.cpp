@@ -28,7 +28,7 @@ SemaphoreHandle_t driveModeMutex;
 #define CANBUS_ID 0x15    // put your CAN ID here
 
 // CAN send values
-int8_t driveMode = 1;     // 1 = XBOX Controller; 0 = CANBUS Drive Input
+int8_t driveMode = 2;     // 1 = XBOX Controller; 0 = CANBUS Drive Input
 int16_t throttle;
 uint8_t steeringAngle;    // 90 is default
 int16_t voltage;
@@ -112,7 +112,7 @@ void VCU (void * pvParameters){
         MANEUVER maneuver = drive(throttle, steeringAngle);
         break;  // Exit the switch statement
       }
-
+      /*
       case 1: {
         // Initialize XBOX inside a block to avoid the jump error
         XBOX xboxData = getXboxData();
@@ -128,11 +128,36 @@ void VCU (void * pvParameters){
             canSender(CANBUS_ID, 1, throttle, maneuver.steeringAngle, 1029, 30, 0);
           }
         }
+        */
+
+        case 2: {
+          vTaskDelay(5000 / portTICK_PERIOD_MS);
+          steeringAngle = 90; // steeringOffset;
+          throttle = 1500;
+          MANEUVER maneuver = drive(throttle, steeringAngle);
+          vTaskDelay(10000 / portTICK_PERIOD_MS);
+          steeringAngle = 90; // steeringOffset;
+          throttle = 1600;
+          maneuver = drive(throttle, steeringAngle);
+          vTaskDelay(1000 / portTICK_PERIOD_MS);
+          steeringAngle = 45; // steeringOffset;
+          maneuver = drive(throttle, steeringAngle + steeringOffset);
+          vTaskDelay(600 / portTICK_PERIOD_MS);
+          steeringAngle = 90; // steeringOffset;
+          maneuver = drive(throttle, steeringAngle);
+          vTaskDelay(300 / portTICK_PERIOD_MS);
+          throttle = 1000;
+          maneuver = drive(throttle, steeringAngle);
+          vTaskDelay(300 / portTICK_PERIOD_MS);
+          throttle = 1500;
+          maneuver = drive(throttle, steeringAngle);
+          vTaskDelay(5000 / portTICK_PERIOD_MS);
+          driveMode = 0;
+        }
 
         break;  // Exit the switch statement
-      }
 
-      case 2: {
+      case 3: {
         FRYSKY frysky = getData();
         //Serial.printf("throttle: %d, steering: %d\n", frysky.throttle, frysky.steeringAngle);
 
@@ -160,10 +185,10 @@ void setup() {
   setupMANEUVER();
 
   // Wait a moment to start (so we don't miss Serial output)
-  vTaskDelay(5000 / portTICK_PERIOD_MS);
+  vTaskDelay(2000 / portTICK_PERIOD_MS);
 
   // Setup CAN communication and ECU Components
-  setupXBOX();
+  //setupXBOX();
   setupCANBUS();
   setupFRYSKY();
 
