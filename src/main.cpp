@@ -140,9 +140,26 @@ void VCU (void * pvParameters){
           throttle = 1600;
           maneuver = drive(throttle, steeringAngle);
           vTaskDelay(1000 / portTICK_PERIOD_MS);
-          steeringAngle = 45; // steeringOffset;
-          maneuver = drive(throttle, steeringAngle + steeringOffset);
-          vTaskDelay(600 / portTICK_PERIOD_MS);
+
+          steeringAngle = 60; // steeringOffset;
+          maneuver = drive(throttle, steeringAngle); // + steering offset
+          vTaskDelay(400 / portTICK_PERIOD_MS);
+          steeringAngle = 120; // steeringOffset;
+          maneuver = drive(throttle, steeringAngle); // + steering offset
+          vTaskDelay(400 / portTICK_PERIOD_MS);
+
+          steeringAngle = 90; // steeringOffset;
+          maneuver = drive(throttle, steeringAngle);
+          vTaskDelay(300 / portTICK_PERIOD_MS);
+
+          steeringAngle = 120; // steeringOffset;
+          maneuver = drive(throttle, steeringAngle); // + steering offset
+          vTaskDelay(400 / portTICK_PERIOD_MS);
+
+          steeringAngle = 60; // steeringOffset;
+          maneuver = drive(throttle, steeringAngle); // + steering offset
+          vTaskDelay(400 / portTICK_PERIOD_MS);
+
           steeringAngle = 90; // steeringOffset;
           maneuver = drive(throttle, steeringAngle);
           vTaskDelay(300 / portTICK_PERIOD_MS);
