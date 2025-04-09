@@ -13,6 +13,7 @@ For any questions or inquiries, please contact https://github.com/schaefchenn or
 #include <XBOX.h>
 #include <MANEUVER.h>
 #include <FRYSKY.h>
+#include <CAN_Dubovyy.h>
 
 // Core definitions (assuming you have dual-core ESP32)
 static const BaseType_t pro_cpu = 0; // protocol core
@@ -49,50 +50,7 @@ int8_t canACKNOWLEDGED;
 
 void CANBUS (void * pvParameters) {
   while (1){
-    CANRECIEVER msg = canReceiver();
-
-    if (msg.recieved) {
-      Serial.print("recieved");
-      Serial.print("\tid: 0x");
-      Serial.print(msg.id, HEX);
-
-      if (msg.extended) {
-        Serial.print("\textended");
-      }
-
-      if (CAN.packetRtr()) {
-        Serial.print("\trtr");
-        Serial.print("\trequested length: ");
-        Serial.print(msg.reqLength);
-
-      } else {
-
-        if (xSemaphoreTake(driveModeMutex, portMAX_DELAY) == pdTRUE) { 
-          driveMode = msg.driveMode;                     // Critical section
-          xSemaphoreGive(driveModeMutex);           // Give mutex after critical section
-          vTaskDelay(10 / portTICK_PERIOD_MS);      // Small delay after critical section to yield
-        }
-
-        canTHROTTLE = msg.throttle;
-        canSTEERING = msg.steeringAngle;
-
-        Serial.print("\tlength: ");
-        Serial.print(msg.length);
-        Serial.print("\tdrive mode: ");
-        Serial.print(msg.driveMode);
-        Serial.print("\tthrottle: ");
-        Serial.print(msg.throttle);
-        Serial.print("\tsteering angle: ");
-        Serial.print(msg.steeringAngle);
-        Serial.print("\tvoltage: ");
-        Serial.print(msg.voltage);
-        Serial.print("\tvelocity: ");
-        Serial.print(msg.velocity);
-        Serial.print("\tacknowledged: ");
-        Serial.print(msg.acknowledged);
-        Serial.println();
-      }
-    }
+    recieveCanDubovyy();
 
     // yield
     vTaskDelay(5 / portTICK_PERIOD_MS);
@@ -112,6 +70,7 @@ void VCU (void * pvParameters){
         MANEUVER maneuver = drive(throttle, steeringAngle);
         break;  // Exit the switch statement
       }
+
       /*
       case 1: {
         // Initialize XBOX inside a block to avoid the jump error
@@ -131,45 +90,8 @@ void VCU (void * pvParameters){
         */
 
         case 2: {
-          vTaskDelay(5000 / portTICK_PERIOD_MS);
-          steeringAngle = 90; // steeringOffset;
-          throttle = 1500;
-          MANEUVER maneuver = drive(throttle, steeringAngle);
-          vTaskDelay(10000 / portTICK_PERIOD_MS);
-          steeringAngle = 90; // steeringOffset;
-          throttle = 1600;
-          maneuver = drive(throttle, steeringAngle);
-          vTaskDelay(1000 / portTICK_PERIOD_MS);
+          //canSender(CANBUS_ID, 1, 0, 0, 1029, 30, 0);
 
-          steeringAngle = 60; // steeringOffset;
-          maneuver = drive(throttle, steeringAngle); // + steering offset
-          vTaskDelay(400 / portTICK_PERIOD_MS);
-          steeringAngle = 120; // steeringOffset;
-          maneuver = drive(throttle, steeringAngle); // + steering offset
-          vTaskDelay(400 / portTICK_PERIOD_MS);
-
-          steeringAngle = 90; // steeringOffset;
-          maneuver = drive(throttle, steeringAngle);
-          vTaskDelay(300 / portTICK_PERIOD_MS);
-
-          steeringAngle = 120; // steeringOffset;
-          maneuver = drive(throttle, steeringAngle); // + steering offset
-          vTaskDelay(400 / portTICK_PERIOD_MS);
-
-          steeringAngle = 60; // steeringOffset;
-          maneuver = drive(throttle, steeringAngle); // + steering offset
-          vTaskDelay(400 / portTICK_PERIOD_MS);
-
-          steeringAngle = 90; // steeringOffset;
-          maneuver = drive(throttle, steeringAngle);
-          vTaskDelay(300 / portTICK_PERIOD_MS);
-          throttle = 1000;
-          maneuver = drive(throttle, steeringAngle);
-          vTaskDelay(300 / portTICK_PERIOD_MS);
-          throttle = 1500;
-          maneuver = drive(throttle, steeringAngle);
-          vTaskDelay(5000 / portTICK_PERIOD_MS);
-          driveMode = 0;
         }
 
         break;  // Exit the switch statement
@@ -206,8 +128,10 @@ void setup() {
 
   // Setup CAN communication and ECU Components
   //setupXBOX();
-  setupCANBUS();
-  setupFRYSKY();
+  //setupCANBUS();
+  //setupFRYSKY();
+ 
+  setupCanDubovyy();
 
 
   driveModeMutex = xSemaphoreCreateMutex();

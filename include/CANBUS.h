@@ -28,7 +28,7 @@ void setupCANBUS() {
   CAN.setPins (RX_GPIO_NUM, TX_GPIO_NUM);
 
   // start the CAN bus at 1 Mbps
-  if (!CAN.begin (1E6)) {
+  if (!CAN.begin (500E3)) {
     Serial.println ("Starting CAN failed!");
     while (1);
   }
@@ -67,7 +67,7 @@ void canSender(int CANBUS_ID, int8_t driveMode, int16_t throttle, uint8_t steeri
 
   CAN.endPacket();
 
-  //Serial.println("done");
+  Serial.println("done");
 }
 
 CANRECIEVER canReceiver() {
